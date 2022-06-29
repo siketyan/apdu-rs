@@ -66,10 +66,11 @@ pub fn derive_response(input: TokenStream) -> TokenStream {
             let arms = d.variants.iter().map(|variant| {
                 let ident = &variant.ident;
                 let attr = variant.attrs.iter().find(|attr| attr.path.is_ident("apdu"));
-                if let None = attr {
+                if attr.is_none() {
                     return quote! {}
                 }
 
+                // SAFETY: attr.is_none() is checked above.
                 let tokens = &attr.unwrap().tokens;
                 let left = match tokens.is_empty() {
                     true => quote! { _ },

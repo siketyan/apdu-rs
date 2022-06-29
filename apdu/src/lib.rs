@@ -2,8 +2,8 @@
 
 pub use apdu_core as core;
 
-pub use core::Command;
-pub use core::Response;
+pub use crate::core::Command;
+pub use crate::core::Response;
 
 #[cfg(test)]
 mod tests {
