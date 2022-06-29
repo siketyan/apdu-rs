@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "apdu",
+    "apdu-core",
+    "apdu-derive",
+]

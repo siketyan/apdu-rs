@@ -1,0 +1,18 @@
+[package]
+name = "apdu"
+description = "High-level API for APDU commands and responses."
+version = "0.1.0"
+license = "MIT"
+homepage = "https://github.com/siketyan/apdu-rs"
+repository = "https://github.com/siketyan/apdu-rs.git"
+readme = "README.md"
+edition = "2021"
+authors = [
+    # Thank you for your contribution!
+    # While contributing to this project, feed free to add your name here :)
+    "Naoki Ikeguchi <me@s6n.jp>",
+]
+
+[dependencies]
+apdu-core = { version = "=0.1.0", path = "../apdu-core" }
+apdu-derive = { version = "=0.1.0", path = "../apdu-derive" }
