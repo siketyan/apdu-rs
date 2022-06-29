@@ -3,8 +3,7 @@
 pub use apdu_core as core;
 pub use apdu_derive::Response;
 
-pub use crate::core::Command;
-pub use crate::core::Response;
+pub use crate::core::{Command, Handler, Response};
 
 #[cfg(test)]
 mod tests {
