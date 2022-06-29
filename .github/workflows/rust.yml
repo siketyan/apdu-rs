@@ -1,0 +1,111 @@
+name: Rust
+
+on:
+  push: ~
+  release:
+    types:
+      - published
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  checks:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-v1-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install latest stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rustfmt,clippy
+
+      - name: Run clippy
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --workspace
+
+      - name: Run rustfmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all --check
+
+      - name: Run tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --workspace --verbose
+
+  deploy:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name == 'release' }}
+    needs:
+      - checks
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-v1-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Install latest stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Log into crates.io
+        uses: actions-rs/cargo@v1
+        with:
+          command: login
+          args: ${{ secrets.CRATES_IO_TOKEN }}
+
+      - name: Publish to crates.io (apdu-core)
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --verbose --allow-dirty -p apdu-core
+
+      - name: Wait for the crate uploaded
+        run: |
+          until curl -fsSL "https://crates.io/crates/apdu-core/${{ github.event.release.tag_name }}"
+          do
+            echo "Still waiting..."
+            sleep 5
+          done
+
+      - name: Publish to crates.io (apdu-derive)
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --verbose --allow-dirty -p apdu-derive
+
+      - name: Wait for the crate uploaded
+        run: |
+          until curl -fsSL "https://crates.io/crates/apdu-derive/${{ github.event.release.tag_name }}"
+          do
+            echo "Still waiting..."
+            sleep 5
+          done
+
+      - name: Publish to crates.io (apdu)
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: --verbose --allow-dirty -p apdu
