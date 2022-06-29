@@ -1,13 +1,14 @@
 //! High-level API for APDU commands and responses.
 
 pub use apdu_core as core;
+pub use apdu_derive::Response;
 
 pub use crate::core::Command;
 pub use crate::core::Response;
 
 #[cfg(test)]
 mod tests {
-    #[derive(Debug, PartialEq, Eq, apdu_derive::Response)]
+    #[derive(Debug, PartialEq, Eq, crate::Response)]
     enum Response {
         #[apdu(0x90, 0x00)]
         Ok(Vec<u8>),
