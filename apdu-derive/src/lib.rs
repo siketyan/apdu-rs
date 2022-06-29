@@ -53,9 +53,9 @@
 
 extern crate proc_macro;
 
-use syn::{parse_macro_input, DeriveInput, Data};
-use proc_macro::{TokenStream};
+use proc_macro::TokenStream;
 use quote::quote;
+use syn::{parse_macro_input, Data, DeriveInput};
 
 #[proc_macro_derive(Response, attributes(apdu))]
 pub fn derive_response(input: TokenStream) -> TokenStream {
@@ -67,7 +67,7 @@ pub fn derive_response(input: TokenStream) -> TokenStream {
                 let ident = &variant.ident;
                 let attr = variant.attrs.iter().find(|attr| attr.path.is_ident("apdu"));
                 if attr.is_none() {
-                    return quote! {}
+                    return quote! {};
                 }
 
                 // SAFETY: attr.is_none() is checked above.
@@ -104,7 +104,7 @@ pub fn derive_response(input: TokenStream) -> TokenStream {
                     }
                 }
             }
-        },
+        }
         _ => panic!("deriving for Enum is only supported"),
     };
 
