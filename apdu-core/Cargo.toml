@@ -5,7 +5,7 @@ version = "0.1.0"
 license = "MIT"
 homepage = "https://github.com/siketyan/apdu-rs"
 repository = "https://github.com/siketyan/apdu-rs.git"
-readme = "README.md"
+readme = "../README.md"
 edition = "2021"
 authors = [
     # Thank you for your contribution!
