@@ -22,7 +22,7 @@ This repository is made of these crates separately:
 Add to your Cargo.toml as a dependency as follows:
 ```toml
 [dependencies]
-apdu = "0.1"
+apdu = "0.2"
 ```
 
 ## 📄 Documentation
