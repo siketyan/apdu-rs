@@ -1,7 +1,7 @@
 [package]
 name = "apdu-derive"
 description = "Implementation of procedural macro for apdu crate."
-version = "0.2.0"
+version = "0.2.1"
 license = "MIT"
 homepage = "https://github.com/siketyan/apdu-rs"
 repository = "https://github.com/siketyan/apdu-rs.git"
@@ -17,7 +17,7 @@ authors = [
 proc-macro = true
 
 [dependencies]
-apdu-core = { version = "=0.2.0", path = "../apdu-core" }
+apdu-core = { version = "=0.2.1", path = "../apdu-core" }
 proc-macro2 = "1.0"
 quote = "1"
 syn = "1.0"
