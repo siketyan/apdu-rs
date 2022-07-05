@@ -97,6 +97,13 @@ mod tests {
         #[apdu(0x90, 0x00)]
         Ok(Vec<u8>),
 
+        #[apdu(0x63, 0xC0..=0xCF)]
+        VerifyFailed(
+            #[sw2]
+            #[mask(0x0F)]
+            u8,
+        ),
+
         #[apdu(0x60..=0x69, _)]
         NotOk,
 
@@ -133,6 +140,18 @@ mod tests {
             assert_eq!((0x70, 0x00), (sw1, sw2))
         } else {
             panic!("Response is not Unknown variant")
+        }
+    }
+
+    #[test]
+    fn test_inject() {
+        let bytes: Vec<u8> = vec![0x63, 0xC7];
+        let response = Response::from(bytes.clone());
+
+        if let Response::VerifyFailed(count) = response {
+            assert_eq!(7, count)
+        } else {
+            panic!("Response is not VerifyFailed variant")
         }
     }
 }
