@@ -50,14 +50,28 @@
 //!     Unknown(u8, u8),
 //! }
 //! ```
+//!
+//! Optionally you can select what to inject to the fields:
+//! ```rust
+//! #[derive(Debug, apdu_derive::Response, thiserror::Error)]
+//! enum Response {
+//!     #[apdu(0x63, 0xC0..=0xCF)]
+//!     #[error("verify failed: {0} tries left")]
+//!     VerifyFailed(#[sw2] #[mask(0x0F)] u8),
+//!
+//!     #[apdu(_, _)]
+//!     #[error("unknown: {0:#X} {1:#X}")]
+//!     Unknown(u8, u8),
+//! }
+//! ```
 
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput};
+use syn::{parse_macro_input, Data, DeriveInput, Fields};
 
-#[proc_macro_derive(Response, attributes(apdu))]
+#[proc_macro_derive(Response, attributes(apdu, sw1, sw2, payload, mask))]
 pub fn derive_response(input: TokenStream) -> TokenStream {
     let item = parse_macro_input!(input as DeriveInput);
     let output: proc_macro2::TokenStream = match item.data {
@@ -77,7 +91,40 @@ pub fn derive_response(input: TokenStream) -> TokenStream {
                     _ => tokens.clone(),
                 };
 
-                let right = if variant.fields.is_empty() {
+                let fields = match &variant.fields {
+                    Fields::Named(f) => f.named.iter().collect(),
+                    Fields::Unnamed(f) => f.unnamed.iter().collect(),
+                    Fields::Unit => vec![],
+                };
+
+                let right = if fields.iter().any(|f| !f.attrs.is_empty()) {
+                    let values = fields.iter().map(|f| {
+                        let mask =
+                            if let Some(attr) = f.attrs.iter().find(|a| a.path.is_ident("mask")) {
+                                let m = &attr.tokens;
+
+                                quote! {
+                                    & #m
+                                }
+                            } else {
+                                quote! {}
+                            };
+
+                        if f.attrs.iter().any(|a| a.path.is_ident("sw1")) {
+                            quote! { (response.trailer.0 #mask).into(), }
+                        } else if f.attrs.iter().any(|a| a.path.is_ident("sw2")) {
+                            quote! { (response.trailer.1 #mask).into(), }
+                        } else if f.attrs.iter().any(|a| a.path.is_ident("payload")) {
+                            quote! { response.payload.into(), }
+                        } else {
+                            quote! {}
+                        }
+                    });
+
+                    quote! {
+                        #ty::#ident(#(#values)*)
+                    }
+                } else if variant.fields.is_empty() {
                     quote! { #ty::#ident }
                 } else if variant.fields.len() == 1 {
                     quote! { #ty::#ident(response.payload) }
