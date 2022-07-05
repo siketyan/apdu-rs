@@ -16,3 +16,4 @@ authors = [
 [dependencies]
 apdu-core = { version = "=0.1.1", path = "../apdu-core" }
 apdu-derive = { version = "=0.1.1", path = "../apdu-derive" }
+thiserror = "1.0"

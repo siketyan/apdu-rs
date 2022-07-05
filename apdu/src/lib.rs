@@ -80,6 +80,7 @@
 //! Take a look for catch example usages for this crate.
 
 pub mod command;
+pub mod error;
 
 pub use apdu_core as core;
 
@@ -87,6 +88,7 @@ pub use apdu_core as core;
 pub use apdu_derive::Response;
 
 pub use crate::core::{Command, Handler, Response};
+pub use crate::error::Error;
 
 #[cfg(test)]
 mod tests {
