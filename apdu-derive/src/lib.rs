@@ -140,14 +140,25 @@ pub fn derive_response(input: TokenStream) -> TokenStream {
                 });
 
             quote! {
-                impl ::std::convert::From<Vec<u8>> for #ty {
-                    fn from(bytes: Vec<u8>) -> Self {
-                        let response = ::apdu_core::Response::from(bytes);
+                impl ::std::convert::From<::apdu_core::Response> for #ty {
+                    fn from(response: ::apdu_core::Response) -> Self {
                         let (sw1, sw2) = response.trailer;
 
                         match (sw1, sw2) {
                             #(#arms)*
                         }
+                    }
+                }
+
+                impl ::std::convert::From<::apdu_core::Error> for #ty {
+                    fn from(error: ::apdu_core::Error) -> Self {
+                        error.response.into()
+                    }
+                }
+
+                impl ::std::convert::From<Vec<u8>> for #ty {
+                    fn from(bytes: Vec<u8>) -> Self {
+                        ::apdu_core::Response::from(bytes).into()
                     }
                 }
             }
