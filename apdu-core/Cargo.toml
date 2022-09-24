@@ -14,3 +14,7 @@ authors = [
 ]
 
 [dependencies]
+
+[features]
+std = []
+default = ["std"]
