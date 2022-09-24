@@ -1,5 +1,9 @@
 //! Core library for composing APDU commands and parsing their responses.
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
+extern crate alloc;
+
 mod command;
 mod error;
 mod response;

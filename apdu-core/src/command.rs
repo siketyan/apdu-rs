@@ -1,3 +1,6 @@
+use alloc::vec;
+use alloc::vec::Vec;
+
 /// An APDU command to be transmitted
 pub struct Command {
     pub cla: u8,
