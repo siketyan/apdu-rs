@@ -25,5 +25,14 @@ Add to your Cargo.toml as a dependency as follows:
 apdu = "0.2"
 ```
 
+## 🛠 no_std support
+apdu-core crate does support no_std environments.
+If you are using this crate in no_std, turn `std` feature off by disabling default features:
+
+```toml
+[dependencies]
+apdu-core = { version = "0.2", default-features = false }
+```
+
 ## 📄 Documentation
 See [docs.rs](https://docs.rs/apdu/).
