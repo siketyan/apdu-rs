@@ -14,3 +14,10 @@ authors = [
 ]
 
 [dependencies]
+
+[features]
+default = []
+
+# This crate also supports 16 bit length payloads.
+# However longer payloads are not tested well, so we are enabling it only if this feature is turned on.
+longer_payloads = []
