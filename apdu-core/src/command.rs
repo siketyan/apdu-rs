@@ -79,8 +79,17 @@ impl From<Command> for Vec<u8> {
 
         let mut buffer: Vec<u8> = vec![cla, ins, p1, p2];
         if let Some(mut p) = payload {
-            buffer.push(p.len() as u8);
-            buffer.append(&mut p);
+            // According to spec, length can be 0, 1 or 2 bytes
+            // 2 bytes is prefaced by 00 to differentiate between 1 byte lengths
+            if cfg!(feature = "longer_payloads") && p.len() > u8::MAX as usize {
+                buffer.push(0u8);
+                buffer.push(p.len() as u8);
+                buffer.push((p.len() >> 8) as u8);
+                buffer.append(&mut p);
+            } else {
+                buffer.push(p.len() as u8);
+                buffer.append(&mut p);
+            }
         }
 
         if let Some(l) = le {
