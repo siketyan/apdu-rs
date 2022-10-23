@@ -63,7 +63,7 @@ impl ReadBinaryCommand {
 
 impl From<ReadBinaryCommand> for crate::Command {
     fn from(cmd: ReadBinaryCommand) -> Self {
-        Self::new_with_le(CLA_DEFAULT, INS_READ_BINARY, cmd.p1, cmd.p2, cmd.le)
+        Self::new_with_le(CLA_DEFAULT, INS_READ_BINARY, cmd.p1, cmd.p2, cmd.le.into())
     }
 }
 
