@@ -25,8 +25,16 @@ Add to your Cargo.toml as a dependency as follows:
 apdu = "0.2"
 ```
 
+## 🛠 Longer payloads support
+This library supports longer payloads of APDU commands and responses.
+If you want to use these, turn `longer_payloads` feature on:
+
+```toml
+apdu-core = { version = "0.2", features = ["longer_payloads"] }
+```
+
 ## 🛠 no_std support
-apdu-core crate does support no_std environments.
+apdu-core crate does support no_std environments (but it requires `alloc` yet).
 If you are using this crate in no_std, turn `std` feature off by disabling default features:
 
 ```toml
