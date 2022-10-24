@@ -4,7 +4,7 @@ version = 3
 
 [[package]]
 name = "apdu"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "apdu-core",
  "apdu-derive",
@@ -13,11 +13,11 @@ dependencies = [
 
 [[package]]
 name = "apdu-core"
-version = "0.2.1"
+version = "0.3.0"
 
 [[package]]
 name = "apdu-derive"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "apdu-core",
  "proc-macro2",
