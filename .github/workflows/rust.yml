@@ -17,6 +17,7 @@ env:
 jobs:
   checks:
     runs-on: ubuntu-22.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
 
@@ -87,30 +88,18 @@ jobs:
           command: publish
           args: --verbose --allow-dirty -p apdu-core
 
-      - name: Wait for the crate uploaded
-        run: |
-          until curl -fsSL -H "https://crates.io/api/v1/crates/apdu-core/${{ github.event.release.tag_name }}"
-          do
-            echo "Still waiting..."
-            sleep 5
-          done
-
       - name: Publish to crates.io (apdu-derive)
-        uses: actions-rs/cargo@v1
-        with:
-          command: publish
-          args: --verbose --allow-dirty -p apdu-derive
-
-      - name: Wait for the crate uploaded
         run: |
-          until curl -fsSL "https://crates.io/api/v1/crates/apdu-derive/${{ github.event.release.tag_name }}"
+          until cargo publish --verbose --allow-dirty -p apdu-derive
           do
             echo "Still waiting..."
             sleep 5
           done
 
       - name: Publish to crates.io (apdu)
-        uses: actions-rs/cargo@v1
-        with:
-          command: publish
-          args: --verbose --allow-dirty -p apdu
+        run: |
+          until cargo publish --verbose --allow-dirty -p apdu
+          do
+            echo "Still waiting..."
+            sleep 5
+          done
