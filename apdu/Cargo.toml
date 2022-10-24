@@ -1,7 +1,7 @@
 [package]
 name = "apdu"
 description = "High-level API for APDU commands and responses."
-version = "0.2.1"
+version = "0.3.0"
 license = "MIT"
 homepage = "https://github.com/siketyan/apdu-rs"
 repository = "https://github.com/siketyan/apdu-rs.git"
@@ -14,6 +14,6 @@ authors = [
 ]
 
 [dependencies]
-apdu-core = { version = "=0.2.1", path = "../apdu-core" }
-apdu-derive = { version = "=0.2.1", path = "../apdu-derive" }
+apdu-core = { version = "=0.3.0", path = "../apdu-core" }
+apdu-derive = { version = "=0.3.0", path = "../apdu-derive" }
 thiserror = "1.0"
