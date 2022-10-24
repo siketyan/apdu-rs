@@ -22,7 +22,7 @@ This repository is made of these crates separately:
 Add to your Cargo.toml as a dependency as follows:
 ```toml
 [dependencies]
-apdu = "0.2"
+apdu = "0.3"
 ```
 
 ## 🛠 Longer payloads support
@@ -30,7 +30,7 @@ This library supports longer payloads of APDU commands and responses.
 If you want to use these, turn `longer_payloads` feature on:
 
 ```toml
-apdu-core = { version = "0.2", features = ["longer_payloads"] }
+apdu-core = { version = "0.3", features = ["longer_payloads"] }
 ```
 
 ## 🛠 no_std support
@@ -39,7 +39,7 @@ If you are using this crate in no_std, turn `std` feature off by disabling defau
 
 ```toml
 [dependencies]
-apdu-core = { version = "0.2", default-features = false }
+apdu-core = { version = "0.3", default-features = false }
 ```
 
 ## 📄 Documentation
