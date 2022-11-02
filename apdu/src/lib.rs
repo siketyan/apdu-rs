@@ -5,7 +5,7 @@
 //! [apdu-core](https://docs.rs/apdu-core/) crate declares types for APDU command and response in low-level.
 //! It is fully cross-platform since this crate contains only type declarations.
 //! ```rust
-//! let command = apdu_core::Command::new_with_payload(0x00, 0xA4, 0x12, 0x34, vec![0x56, 0x78]);
+//! let command = apdu_core::Command::new_with_payload(0x00, 0xA4, 0x12, 0x34, &[0x56, 0x78]);
 //! let bytes: Vec<u8> = command.into();
 //!
 //! assert_eq!(
@@ -22,7 +22,7 @@
 //! This apdu crate declares some high-level APIs to compose APDU commands or parse their responses easily.
 //! It is cross-platform now, but some os-specific features can be added in the future.
 //! ```rust
-//! let command = apdu::command::select_file(0x12, 0x34, vec![0x56, 0x78]);
+//! let command = apdu::command::select_file(0x12, 0x34, &[0x56, 0x78]);
 //! let bytes: Vec<u8> = command.into();
 //!
 //! assert_eq!(vec![0x00, 0xA4, 0x12, 0x34, 0x02, 0x56, 0x78], bytes);
@@ -41,14 +41,14 @@
 //! }
 //!
 //! /// Now implement `From<YourType>` for `apdu_core::Command`:
-//! impl From<DoSomethingCommand> for apdu_core::Command {
+//! impl<'a> From<DoSomethingCommand> for apdu_core::Command<'a> {
 //!     fn from(cmd: DoSomethingCommand) -> Self {
 //!         Self::new(0x12, 0x34, 0x56, 0x78)
 //!     }
 //! }
 //!
 //! /// ... then dependents of your library can be used with other crate that has an APDU implementation:
-//! fn handle_apdu_command(cmd: impl Into<apdu_core::Command>) {
+//! fn handle_apdu_command<'a>(cmd: impl Into<apdu_core::Command<'a>>) {
 //!     // connect to your card ...
 //!     // transmit the command ...
 //!     // ... and wait for the response
@@ -61,12 +61,13 @@
 //! struct NfcReader;
 //!
 //! impl apdu_core::HandlerInCtx<()> for NfcReader {
-//!     fn handle_in_ctx(&self, _ctx: (), cmd: apdu_core::Command) -> apdu_core::Response {
+//!     fn handle_in_ctx(&self, _ctx: (), command: &[u8], response: &mut [u8]) -> apdu_core::Result {
 //!         // connect to your card ...
 //!         // transmit the command ...
 //!         // ... and wait for the response
+//! #       let len = 0;
 //!
-//!         vec![].into()
+//!         Ok(len) // return the length of response
 //!     }
 //! }
 //! ```
@@ -93,9 +94,9 @@ pub use crate::error::Error;
 #[cfg(test)]
 mod tests {
     #[derive(Debug, PartialEq, Eq, crate::Response)]
-    enum Response {
+    enum Response<'a> {
         #[apdu(0x90, 0x00)]
-        Ok(Vec<u8>),
+        Ok(&'a [u8]),
 
         #[apdu(0x63, 0xC0..=0xCF)]
         VerifyFailed(
@@ -114,10 +115,10 @@ mod tests {
     #[test]
     fn test_success() {
         let bytes: Vec<u8> = vec![0x12, 0x34, 0x56, 0x90, 0x00];
-        let response = Response::from(bytes.clone());
+        let response = Response::from(bytes.as_slice());
 
         if let Response::Ok(payload) = response {
-            assert_eq!(&bytes[..3], &payload)
+            assert_eq!(&bytes[..3], payload)
         } else {
             panic!("Response is not Ok variant")
         }
@@ -126,7 +127,7 @@ mod tests {
     #[test]
     fn test_not_ok() {
         let bytes: Vec<u8> = vec![0x69, 0x12];
-        let response = Response::from(bytes.clone());
+        let response = Response::from(bytes.as_slice());
 
         assert_eq!(Response::NotOk, response)
     }
@@ -134,7 +135,7 @@ mod tests {
     #[test]
     fn test_unknown() {
         let bytes: Vec<u8> = vec![0x70, 0x00];
-        let response = Response::from(bytes.clone());
+        let response = Response::from(bytes.as_slice());
 
         if let Response::Unknown(sw1, sw2) = response {
             assert_eq!((0x70, 0x00), (sw1, sw2))
@@ -146,7 +147,7 @@ mod tests {
     #[test]
     fn test_inject() {
         let bytes: Vec<u8> = vec![0x63, 0xC7];
-        let response = Response::from(bytes.clone());
+        let response = Response::from(bytes.as_slice());
 
         if let Response::VerifyFailed(count) = response {
             assert_eq!(7, count)

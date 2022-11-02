@@ -6,9 +6,9 @@
 //! Here is a simple example to derive Response:
 //! ```rust
 //! #[derive(apdu_derive::Response)]
-//! enum Response {
+//! enum Response<'a> {
 //!     #[apdu(0x90, 0x00)]
-//!     Ok(Vec<u8>),
+//!     Ok(&'a [u8]),
 //!
 //!     #[apdu(0x60..=0x69, _)]
 //!     #[apdu(0x12, 0x34)]
@@ -21,14 +21,14 @@
 //!
 //! This is equivalent to implementing this:
 //! ```rust
-//! enum Response {
-//!     Ok(Vec<u8>),
+//! enum Response<'a> {
+//!     Ok(&'a [u8]),
 //!     NotOk,
 //!     Unknown(u8, u8),
 //! }
 //!
-//! impl From<apdu_core::Response> for Response {
-//!     fn from(response: apdu_core::Response) -> Self {
+//! impl<'a> From<apdu_core::Response<'a>> for Response<'a> {
+//!     fn from(response: apdu_core::Response<'a>) -> Self {
 //!         match response.trailer {
 //!             (0x90, 0x00) => Self::Ok(response.payload),
 //!             (0x60..=0x69, _) => Self::NotOk,
@@ -69,7 +69,7 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
-use quote::quote;
+use quote::{quote, ToTokens};
 use syn::{parse_macro_input, Data, DeriveInput, Fields};
 
 #[proc_macro_derive(Response, attributes(apdu, sw1, sw2, payload, mask))]
@@ -78,6 +78,12 @@ pub fn derive_response(input: TokenStream) -> TokenStream {
     let output: proc_macro2::TokenStream = match item.data {
         Data::Enum(d) => {
             let ty = &item.ident;
+            let gen = &item.generics;
+            let gen_suffix = match gen.into_token_stream().is_empty() {
+                true => quote! {},
+                _ => quote! { ::#gen },
+            };
+
             let arms = d
                 .variants
                 .iter()
@@ -125,13 +131,13 @@ pub fn derive_response(input: TokenStream) -> TokenStream {
                             }
                         });
 
-                        quote! { #ty::#ident(#(#values)*) }
+                        quote! { #ty #gen_suffix::#ident(#(#values)*) }
                     } else if variant.fields.is_empty() {
-                        quote! { #ty::#ident }
+                        quote! { #ty #gen_suffix::#ident }
                     } else if variant.fields.len() == 1 {
-                        quote! { #ty::#ident(response.payload) }
+                        quote! { #ty #gen_suffix::#ident(response.payload) }
                     } else if variant.fields.len() == 2 {
-                        quote! { #ty::#ident(response.trailer.0, response.trailer.1) }
+                        quote! { #ty #gen_suffix::#ident(response.trailer.0, response.trailer.1) }
                     } else {
                         panic!("unsupported type of fields found")
                     };
@@ -140,8 +146,8 @@ pub fn derive_response(input: TokenStream) -> TokenStream {
                 });
 
             quote! {
-                impl ::std::convert::From<::apdu_core::Response> for #ty {
-                    fn from(response: ::apdu_core::Response) -> Self {
+                impl<'a> ::std::convert::From<::apdu_core::Response<'a>> for #ty #gen {
+                    fn from(response: ::apdu_core::Response<'a>) -> Self {
                         let (sw1, sw2) = response.trailer;
 
                         match (sw1, sw2) {
@@ -150,14 +156,14 @@ pub fn derive_response(input: TokenStream) -> TokenStream {
                     }
                 }
 
-                impl ::std::convert::From<::apdu_core::Error> for #ty {
-                    fn from(error: ::apdu_core::Error) -> Self {
+                impl<'a> ::std::convert::From<::apdu_core::Error<'a>> for #ty #gen {
+                    fn from(error: ::apdu_core::Error<'a>) -> Self {
                         error.response.into()
                     }
                 }
 
-                impl ::std::convert::From<Vec<u8>> for #ty {
-                    fn from(bytes: Vec<u8>) -> Self {
+                impl<'a> ::std::convert::From<&'a [u8]> for #ty #gen {
+                    fn from(bytes: &'a [u8]) -> Self {
                         ::apdu_core::Response::from(bytes).into()
                     }
                 }
