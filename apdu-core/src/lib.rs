@@ -55,21 +55,21 @@ impl std::error::Error for HandleError {}
 pub trait HandlerInCtx<Ctx = ()> {
     /// Handles the APDU command in a specific context.
     /// Implementations must transmit the command to the card through a reader,
-    /// then receive the response from them.
+    /// then receive the response from them, returning length of the data written.
     fn handle_in_ctx(
         &self,
         ctx: Ctx,
         command: &[u8],
         response: &mut [u8],
-    ) -> Result<(), HandleError>;
+    ) -> Result<usize, HandleError>;
 }
 
 /// An handler to handle an APDU command and receive a response
 pub trait Handler: HandlerInCtx<()> {
     /// Handles the APDU command.
     /// Implementations must transmit the command to the card through a reader,
-    /// then receive the response from them.
-    fn handle(&self, command: &[u8], response: &mut [u8]) -> Result<(), HandleError> {
+    /// then receive the response from them, returning length of the data written.
+    fn handle(&self, command: &[u8], response: &mut [u8]) -> Result<usize, HandleError> {
         self.handle_in_ctx((), command, response)
     }
 }
