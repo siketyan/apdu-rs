@@ -5,7 +5,7 @@
 //! [apdu-core](https://docs.rs/apdu-core/) crate declares types for APDU command and response in low-level.
 //! It is fully cross-platform since this crate contains only type declarations.
 //! ```rust
-//! let command = apdu_core::Command::new_with_payload(0x00, 0xA4, 0x12, 0x34, vec![0x56, 0x78]);
+//! let command = apdu_core::Command::new_with_payload(0x00, 0xA4, 0x12, 0x34, &[0x56, 0x78]);
 //! let bytes: Vec<u8> = command.into();
 //!
 //! assert_eq!(
@@ -22,7 +22,7 @@
 //! This apdu crate declares some high-level APIs to compose APDU commands or parse their responses easily.
 //! It is cross-platform now, but some os-specific features can be added in the future.
 //! ```rust
-//! let command = apdu::command::select_file(0x12, 0x34, vec![0x56, 0x78]);
+//! let command = apdu::command::select_file(0x12, 0x34, &[0x56, 0x78]);
 //! let bytes: Vec<u8> = command.into();
 //!
 //! assert_eq!(vec![0x00, 0xA4, 0x12, 0x34, 0x02, 0x56, 0x78], bytes);
@@ -41,14 +41,14 @@
 //! }
 //!
 //! /// Now implement `From<YourType>` for `apdu_core::Command`:
-//! impl From<DoSomethingCommand> for apdu_core::Command {
+//! impl<'a> From<DoSomethingCommand> for apdu_core::Command<'a> {
 //!     fn from(cmd: DoSomethingCommand) -> Self {
 //!         Self::new(0x12, 0x34, 0x56, 0x78)
 //!     }
 //! }
 //!
 //! /// ... then dependents of your library can be used with other crate that has an APDU implementation:
-//! fn handle_apdu_command(cmd: impl Into<apdu_core::Command>) {
+//! fn handle_apdu_command<'a>(cmd: impl Into<apdu_core::Command<'a>>) {
 //!     // connect to your card ...
 //!     // transmit the command ...
 //!     // ... and wait for the response
@@ -61,12 +61,13 @@
 //! struct NfcReader;
 //!
 //! impl apdu_core::HandlerInCtx<()> for NfcReader {
-//!     fn handle_in_ctx(&self, _ctx: (), cmd: apdu_core::Command) -> apdu_core::Response {
+//!     fn handle_in_ctx(&self, _ctx: (), command: &[u8], response: &mut [u8]) -> apdu_core::Result {
 //!         // connect to your card ...
 //!         // transmit the command ...
 //!         // ... and wait for the response
+//! #       let len = 0;
 //!
-//!         vec![].into()
+//!         Ok(len) // return the length of response
 //!     }
 //! }
 //! ```
