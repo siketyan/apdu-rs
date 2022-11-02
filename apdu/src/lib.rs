@@ -94,9 +94,9 @@ pub use crate::error::Error;
 #[cfg(test)]
 mod tests {
     #[derive(Debug, PartialEq, Eq, crate::Response)]
-    enum Response {
+    enum Response<'a> {
         #[apdu(0x90, 0x00)]
-        Ok(Vec<u8>),
+        Ok(&'a [u8]),
 
         #[apdu(0x63, 0xC0..=0xCF)]
         VerifyFailed(
@@ -115,10 +115,10 @@ mod tests {
     #[test]
     fn test_success() {
         let bytes: Vec<u8> = vec![0x12, 0x34, 0x56, 0x90, 0x00];
-        let response = Response::from(bytes.clone());
+        let response = Response::from(bytes.as_slice());
 
         if let Response::Ok(payload) = response {
-            assert_eq!(&bytes[..3], &payload)
+            assert_eq!(&bytes[..3], payload)
         } else {
             panic!("Response is not Ok variant")
         }
@@ -127,7 +127,7 @@ mod tests {
     #[test]
     fn test_not_ok() {
         let bytes: Vec<u8> = vec![0x69, 0x12];
-        let response = Response::from(bytes.clone());
+        let response = Response::from(bytes.as_slice());
 
         assert_eq!(Response::NotOk, response)
     }
@@ -135,7 +135,7 @@ mod tests {
     #[test]
     fn test_unknown() {
         let bytes: Vec<u8> = vec![0x70, 0x00];
-        let response = Response::from(bytes.clone());
+        let response = Response::from(bytes.as_slice());
 
         if let Response::Unknown(sw1, sw2) = response {
             assert_eq!((0x70, 0x00), (sw1, sw2))
@@ -147,7 +147,7 @@ mod tests {
     #[test]
     fn test_inject() {
         let bytes: Vec<u8> = vec![0x63, 0xC7];
-        let response = Response::from(bytes.clone());
+        let response = Response::from(bytes.as_slice());
 
         if let Response::VerifyFailed(count) = response {
             assert_eq!(7, count)

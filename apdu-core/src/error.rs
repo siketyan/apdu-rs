@@ -4,11 +4,11 @@ use crate::Response;
 
 /// An error that was returned from the card or reader
 #[derive(Debug)]
-pub struct Error {
-    pub response: Response,
+pub struct Error<'a> {
+    pub response: Response<'a>,
 }
 
-impl Display for Error {
+impl<'a> Display for Error<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         let (sw1, sw2) = self.response.trailer;
 
@@ -21,4 +21,4 @@ impl Display for Error {
 }
 
 #[cfg(feature = "std")]
-impl std::error::Error for Error {}
+impl<'a> std::error::Error for Error<'a> {}
