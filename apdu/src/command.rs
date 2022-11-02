@@ -9,7 +9,7 @@ const INS_VERIFY: u8 = 0x20;
 
 macro_rules! impl_into_vec {
     ($name: ty) => {
-        impl From<$name> for Vec<u8> {
+        impl<'a> From<$name> for Vec<u8> {
             fn from(cmd: $name) -> Self {
                 crate::Command::from(cmd).into()
             }
@@ -18,21 +18,21 @@ macro_rules! impl_into_vec {
 }
 
 /// `SELECT FILE` (0xA4) command.
-pub struct SelectFileCommand {
+pub struct SelectFileCommand<'a> {
     p1: u8,
     p2: u8,
-    payload: Vec<u8>,
+    payload: &'a [u8],
 }
 
-impl SelectFileCommand {
+impl<'a> SelectFileCommand<'a> {
     /// Constructs a `SELECT FILE` command.
-    pub fn new(p1: u8, p2: u8, payload: Vec<u8>) -> Self {
+    pub fn new(p1: u8, p2: u8, payload: &'a [u8]) -> Self {
         Self { p1, p2, payload }
     }
 }
 
-impl From<SelectFileCommand> for crate::Command {
-    fn from(cmd: SelectFileCommand) -> Self {
+impl<'a> From<SelectFileCommand<'a>> for crate::Command<'a> {
+    fn from(cmd: SelectFileCommand<'a>) -> Self {
         match cmd.payload.len() {
             0 => Self::new(CLA_DEFAULT, INS_SELECT_FILE, cmd.p1, cmd.p2),
             _ => Self::new_with_payload(CLA_DEFAULT, INS_SELECT_FILE, cmd.p1, cmd.p2, cmd.payload),
@@ -40,10 +40,10 @@ impl From<SelectFileCommand> for crate::Command {
     }
 }
 
-impl_into_vec!(SelectFileCommand);
+impl_into_vec!(SelectFileCommand<'a>);
 
 /// Constructs a `SELECT FILE` command.
-pub fn select_file(p1: u8, p2: u8, payload: Vec<u8>) -> SelectFileCommand {
+pub fn select_file(p1: u8, p2: u8, payload: &[u8]) -> SelectFileCommand {
     SelectFileCommand::new(p1, p2, payload)
 }
 
@@ -61,7 +61,7 @@ impl ReadBinaryCommand {
     }
 }
 
-impl From<ReadBinaryCommand> for crate::Command {
+impl<'a> From<ReadBinaryCommand> for crate::Command<'a> {
     fn from(cmd: ReadBinaryCommand) -> Self {
         Self::new_with_le(CLA_DEFAULT, INS_READ_BINARY, cmd.p1, cmd.p2, cmd.le.into())
     }
@@ -75,20 +75,20 @@ pub fn read_binary(p1: u8, p2: u8, le: u8) -> ReadBinaryCommand {
 }
 
 /// `VERIFY` (0x20) command.
-pub struct VerifyCommand {
+pub struct VerifyCommand<'a> {
     p2: u8,
-    payload: Vec<u8>,
+    payload: &'a [u8],
 }
 
-impl VerifyCommand {
+impl<'a> VerifyCommand<'a> {
     /// Constructs a `VERIFY` command.
-    pub fn new(p2: u8, payload: Vec<u8>) -> Self {
+    pub fn new(p2: u8, payload: &'a [u8]) -> Self {
         Self { p2, payload }
     }
 }
 
-impl From<VerifyCommand> for crate::Command {
-    fn from(cmd: VerifyCommand) -> Self {
+impl<'a> From<VerifyCommand<'a>> for crate::Command<'a> {
+    fn from(cmd: VerifyCommand<'a>) -> Self {
         match cmd.payload.len() {
             0 => Self::new(CLA_DEFAULT, INS_VERIFY, 0x00, cmd.p2),
             _ => Self::new_with_payload(CLA_DEFAULT, INS_VERIFY, 0x00, cmd.p2, cmd.payload),
@@ -96,9 +96,9 @@ impl From<VerifyCommand> for crate::Command {
     }
 }
 
-impl_into_vec!(VerifyCommand);
+impl_into_vec!(VerifyCommand<'a>);
 
 /// Constructs a `VERIFY` command.
-pub fn verify(p2: u8, payload: Vec<u8>) -> VerifyCommand {
+pub fn verify(p2: u8, payload: &[u8]) -> VerifyCommand {
     VerifyCommand::new(p2, payload)
 }

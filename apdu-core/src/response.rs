@@ -19,6 +19,7 @@ impl Response {
     }
 }
 
+#[cfg(feature = "std")]
 impl From<Vec<u8>> for Response {
     fn from(mut bytes: Vec<u8>) -> Self {
         let sw2 = bytes.pop();
@@ -34,6 +35,7 @@ impl From<Vec<u8>> for Response {
     }
 }
 
+#[cfg(feature = "std")]
 impl From<Response> for Result<Vec<u8>, Error> {
     /// Converts the response to a result of octets.
     fn from(response: Response) -> Self {
