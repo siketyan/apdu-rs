@@ -167,6 +167,7 @@ impl<'a> From<Command<'a>> for Vec<u8> {
         let len = command.len();
         let mut buf = Vec::with_capacity(len);
 
+        #[allow(clippy::uninit_vec)]
         unsafe {
             buf.set_len(len);
         }
