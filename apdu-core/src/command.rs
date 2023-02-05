@@ -1,4 +1,5 @@
 /// An APDU command to be transmitted
+#[derive(Debug)]
 pub struct Command<'a> {
     pub cla: u8,
     pub ins: u8,
