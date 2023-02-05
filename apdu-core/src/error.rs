@@ -12,11 +12,7 @@ impl<'a> Display for Error<'a> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         let (sw1, sw2) = self.response.trailer;
 
-        write!(
-            f,
-            "The APDU reader returned an error ({:#X}, {:#X}).",
-            sw1, sw2,
-        )
+        write!(f, "The APDU reader returned an error ({sw1:#X}, {sw2:#X}).")
     }
 }
 

@@ -29,8 +29,7 @@ impl HandleError {
         match self {
             NotEnoughBuffer(size) => write!(
                 f,
-                "The buffer is too small to write the response. (needs {} bytes)",
-                size,
+                "The buffer is too small to write the response. (needs {size} bytes)",
             ),
             Nfc(e) => e.fmt(f),
         }
