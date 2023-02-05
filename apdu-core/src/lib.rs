@@ -1,5 +1,6 @@
 //! Core library for composing APDU commands and parsing their responses.
 
+#![deny(missing_debug_implementations)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod command;

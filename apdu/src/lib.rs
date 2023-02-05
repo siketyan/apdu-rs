@@ -80,6 +80,8 @@
 //! [jpki-rs](https://github.com/siketyan/jpki-rs) is implemented using this apdu crate.
 //! Take a look for catch example usages for this crate.
 
+#![deny(missing_debug_implementations)]
+
 pub mod command;
 pub mod error;
 
