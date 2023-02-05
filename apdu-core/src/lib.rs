@@ -1,5 +1,6 @@
 //! Core library for composing APDU commands and parsing their responses.
 
+#![deny(missing_debug_implementations)]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod command;
@@ -28,8 +29,7 @@ impl HandleError {
         match self {
             NotEnoughBuffer(size) => write!(
                 f,
-                "The buffer is too small to write the response. (needs {} bytes)",
-                size,
+                "The buffer is too small to write the response. (needs {size} bytes)",
             ),
             Nfc(e) => e.fmt(f),
         }

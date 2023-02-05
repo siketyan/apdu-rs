@@ -18,6 +18,7 @@ macro_rules! impl_into_vec {
 }
 
 /// `SELECT FILE` (0xA4) command.
+#[derive(Debug)]
 pub struct SelectFileCommand<'a> {
     p1: u8,
     p2: u8,
@@ -48,6 +49,7 @@ pub fn select_file(p1: u8, p2: u8, payload: &[u8]) -> SelectFileCommand {
 }
 
 /// `READ BINARY` (0xB0) command.
+#[derive(Debug)]
 pub struct ReadBinaryCommand {
     p1: u8,
     p2: u8,
@@ -75,6 +77,7 @@ pub fn read_binary(p1: u8, p2: u8, le: u8) -> ReadBinaryCommand {
 }
 
 /// `VERIFY` (0x20) command.
+#[derive(Debug)]
 pub struct VerifyCommand<'a> {
     p2: u8,
     payload: &'a [u8],
